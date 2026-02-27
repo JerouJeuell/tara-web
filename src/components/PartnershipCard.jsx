@@ -69,6 +69,7 @@ export default function PartnershipCard() {
 
     const handleInvite = (e) => {
         e.preventDefault()
+        if (inviteMutation.isPending || inviteMutation.isSuccess) return  // ← guard
         setError(null)
         setMessage(null)
         inviteMutation.mutate()
@@ -198,15 +199,15 @@ export default function PartnershipCard() {
                 />
                 <button
                     type="submit"
-                    disabled={inviteMutation.isPending || inviteCode.length < 8}
+                    disabled={inviteMutation.isPending || inviteMutation.isSuccess || inviteCode.length < 8}
                     className="rounded-xl px-4 py-2.5 text-sm font-medium transition-opacity"
                     style={{
                         background: 'var(--rose)',
                         color: 'white',
-                        opacity: (inviteMutation.isPending || inviteCode.length < 8) ? 0.5 : 1,
+                        opacity: (inviteMutation.isPending || inviteMutation.isSuccess || inviteCode.length < 8) ? 0.5 : 1,
                     }}
                 >
-                    {inviteMutation.isPending ? '...' : 'Send'}
+                    {inviteMutation.isPending ? '...' : inviteMutation.isSuccess ? '✓' : 'Send'}
                 </button>
             </form>
         </div>
