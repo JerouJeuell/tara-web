@@ -3,15 +3,17 @@ import AppLayout from '../components/AppLayout'
 import PartnershipCard from '../components/PartnershipCard'
 import useAuthStore from '../stores/authStore'
 import { getMyPartnership } from '../lib/partnerships'
+import { useNavigate } from 'react-router-dom'
 
 export default function DashboardPage() {
     const { user } = useAuthStore()
+    const navigate = useNavigate()
 
     const { data: partnershipData } = useQuery({
         queryKey: ['partnership'],
         queryFn: () => getMyPartnership().then(r => r.data),
     })
-
+    
     const partner = partnershipData?.partner ?? null
     const isConnected = !!partnershipData?.partnership
 
@@ -49,13 +51,14 @@ export default function DashboardPage() {
                 {isConnected && (
                     <div className="grid grid-cols-2 gap-4">
                         {[
-                            { emoji: '📅', label: 'Events', desc: 'Plan your dates' },
-                            { emoji: '✅', label: 'Checklists', desc: 'Stay organized' },
-                            { emoji: '💰', label: 'Savings', desc: 'Reach goals together' },
-                            { emoji: '🔔', label: 'Reminders', desc: 'Never forget' },
+                            { emoji: '📅', label: 'Events', desc: 'Plan your dates', path:'/events' },
+                            { emoji: '✅', label: 'Checklists', desc: 'Stay organized', path: '/checklists' },
+                            { emoji: '💰', label: 'Savings', desc: 'Reach goals together', path: '/savings' },
+                            // { emoji: '🔔', label: 'Reminders', desc: 'Never forget' },
                         ].map((item) => (
                             <div
                                 key={item.label}
+                                onClick={() => navigate(item.path)}
                                 className="rounded-2xl p-5 cursor-pointer transition-all hover:shadow-md"
                                 style={{ background: 'var(--card)', border: '1px solid var(--warm)' }}
                             >
