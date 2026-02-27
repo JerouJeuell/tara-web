@@ -4,6 +4,7 @@ import AppLayout from '../components/AppLayout'
 import EventCard from '../components/EventCard'
 import EventForm from '../components/EventForm'
 import { getEvents, createEvent, updateEvent, deleteEvent } from '../lib/events'
+import useToastStore from '../stores/toastStore'
 
 export default function EventsPage() {
     const queryClient = useQueryClient()
@@ -21,12 +22,18 @@ export default function EventsPage() {
     const upcoming = events.filter(e => new Date(e.event_date) >= new Date())
     const past = events.filter(e => new Date(e.event_date) < new Date())
 
+    const {showToast} = useToastStore()
+
     // ── Create ──
     const createMutation = useMutation({
         mutationFn: createEvent,
         onSuccess: () => {
             queryClient.invalidateQueries(['events'])
             setShowForm(false)
+            showToast('Event created! 📅', 'success')
+        },
+        onError: (err) => {
+            showToast(err.response?.data?.message ?? 'Failed to create event.', 'error')
         },
     })
 
@@ -36,13 +43,23 @@ export default function EventsPage() {
         onSuccess: () => {
             queryClient.invalidateQueries(['events'])
             setEditing(null)
+            showToast('Event updated!', 'success')
+        },
+        onError: (err) => {
+            showToast(err.response?.data?.message ?? 'Failed to update event.', 'error')
         },
     })
 
     // ── Delete ──
     const deleteMutation = useMutation({
         mutationFn: deleteEvent,
-        onSuccess: () => queryClient.invalidateQueries(['events']),
+        onSuccess: () => {
+            queryClient.invalidateQueries(['events'])
+            showToast('Event deleted.', 'info')
+        },
+        onError: (err) => {
+            showToast(err.response?.data?.message ?? 'Failed to delete event.', 'error')
+        },
     })
 
     const handleEdit = (event) => setEditing(event)

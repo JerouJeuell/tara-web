@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import useAuthStore from '../stores/authStore'
+import useToastStore from '../stores/toastStore'
 
 const navItems = [
     { path: '/dashboard', emoji: '🏠', label: 'Home' },
@@ -12,11 +13,15 @@ export default function Sidebar({ partner }) {
     const navigate = useNavigate()
     const location = useLocation()
     const { user, logout } = useAuthStore()
+    const { showToast } = useToastStore()
 
     const handleLogout = async () => {
         await logout()
+        showToast('Signed out successfully.', 'info')
         navigate('/login')
     }
+
+    
 
     return (
         <aside style={{ background: 'var(--ink)' }} className="w-60 fixed top-0 left-0 bottom-0 flex flex-col z-10">

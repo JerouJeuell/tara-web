@@ -7,6 +7,7 @@ import {
     acceptInvite,
     leavePartnership,
 } from '../lib/partnerships'
+import useToastStore from '../stores/toastStore'
 
 export default function PartnershipCard() {
     const queryClient = useQueryClient()
@@ -26,6 +27,8 @@ export default function PartnershipCard() {
         enabled: !partnershipData?.partnership,
     })
 
+    const { showToast } = useToastStore()
+
     // ── Mutations ──
     const inviteMutation = useMutation({
         mutationFn: () => sendInvite(inviteCode),
@@ -33,8 +36,10 @@ export default function PartnershipCard() {
             setMessage(res.data.message)
             setInviteCode('')
             queryClient.invalidateQueries(['partnership'])
+            showToast('Invite sent! 💌', 'success')
         },
         onError: (err) => {
+            showToast(err.response?.data?.message ?? 'Something went wrong.', 'error')
             setError(err.response?.data?.message ?? 'Something went wrong.')
         },
     })
@@ -44,9 +49,10 @@ export default function PartnershipCard() {
         onSuccess: () => {
             queryClient.invalidateQueries(['partnership'])
             queryClient.invalidateQueries(['pending-invites'])
+            showToast('You are now connected! 💑', 'success')
         },
         onError: (err) => {
-            setError(err.response?.data?.message ?? 'Something went wrong.')
+            showToast(err.response?.data?.message ?? 'Something went wrong.', 'error')
         },
     })
 
@@ -54,9 +60,10 @@ export default function PartnershipCard() {
         mutationFn: leavePartnership,
         onSuccess: () => {
             queryClient.invalidateQueries(['partnership'])
+            showToast('Partnership dissolved.', 'info')
         },
         onError: (err) => {
-            setError(err.response?.data?.message ?? 'Something went wrong.')
+            showToast(err.response?.data?.message ?? 'Something went wrong.', 'error')
         },
     })
 
