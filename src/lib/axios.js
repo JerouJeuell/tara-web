@@ -9,7 +9,7 @@ const api = axios.create({
     withCredentials: true,
 })
 
-// Automatically attach token to every request
+// Attach token to every request
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token')
     if (token) {
@@ -18,13 +18,15 @@ api.interceptors.request.use((config) => {
     return config
 })
 
-// Handle 401 (token expired/invalid) globally
+// Only redirect to login if there is no token at all
 api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            localStorage.removeItem('token')
-            window.location.href = '/login'
+            const token = localStorage.getItem('token')
+            if (!token) {
+                window.location.href = '/login'
+            }
         }
         return Promise.reject(error)
     }

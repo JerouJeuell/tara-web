@@ -1,69 +1,76 @@
-import { useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import AppLayout from '../components/AppLayout'
+import PartnershipCard from '../components/PartnershipCard'
 import useAuthStore from '../stores/authStore'
+import { getMyPartnership } from '../lib/partnerships'
 
 export default function DashboardPage() {
-    const navigate = useNavigate()
-    const { user, logout } = useAuthStore()
+    const { user } = useAuthStore()
 
-    const handleLogout = async () => {
-        await logout()
-        navigate('/login')
-    }
+    const { data: partnershipData } = useQuery({
+        queryKey: ['partnership'],
+        queryFn: () => getMyPartnership().then(r => r.data),
+    })
+
+    const partner = partnershipData?.partner ?? null
+    const isConnected = !!partnershipData?.partnership
 
     return (
-        <div className="min-h-screen bg-rose-50 p-6">
-            <div className="max-w-2xl mx-auto">
-
-                {/* Header */}
-                <div className="flex items-center justify-between mb-8">
-                    <div>
-                        <h1 className="text-2xl font-bold text-rose-500">Tara 🌸</h1>
-                        <p className="text-gray-500 text-sm">Your couples space</p>
-                    </div>
-                    <button
-                        onClick={handleLogout}
-                        className="text-sm text-gray-500 hover:text-rose-500 transition-colors"
-                    >
-                        Sign out
-                    </button>
-                </div>
-
-                {/* Welcome Card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-rose-100 p-6 mb-4">
-                    <h2 className="text-xl font-semibold text-gray-800">
-                        Welcome, {user?.display_name}! 👋
-                    </h2>
-                    <p className="text-gray-500 text-sm mt-1">
-                        Your invite code:{' '}
-                        <span className="font-mono font-bold text-rose-500">
-                            {user?.invite_code}
-                        </span>
-                    </p>
-                    <p className="text-gray-400 text-xs mt-3">
-                        Share your invite code with your partner to connect.
-                    </p>
-                </div>
-
-                {/* Coming Soon Cards */}
-                <div className="grid grid-cols-2 gap-4">
-                    {[
-                        { emoji: '📅', label: 'Events' },
-                        { emoji: '✅', label: 'Checklists' },
-                        { emoji: '💰', label: 'Savings' },
-                        { emoji: '💑', label: 'Partner' },
-                    ].map((item) => (
-                        <div
-                            key={item.label}
-                            className="bg-white rounded-2xl border border-rose-100 p-6 flex flex-col items-center justify-center gap-2 opacity-50"
-                        >
-                            <span className="text-3xl">{item.emoji}</span>
-                            <span className="text-sm font-medium text-gray-600">{item.label}</span>
-                            <span className="text-xs text-gray-400">Coming soon</span>
-                        </div>
-                    ))}
-                </div>
-
+        <AppLayout>
+            {/* Page Header */}
+            <div className="mb-8">
+                <h2 className="font-serif italic text-3xl" style={{ color: 'var(--ink)' }}>
+                    Good day, {user?.display_name} 🌸
+                </h2>
+                <p className="text-sm mt-1" style={{ color: 'var(--muted)' }}>
+                    {isConnected
+                        ? `You and ${partner?.display_name} have things to plan.`
+                        : 'Connect with your partner to get started.'}
+                </p>
             </div>
-        </div>
+
+            <div className="grid grid-cols-1 gap-6 max-w-3xl">
+
+                {/* Invite Code Card */}
+                <div className="rounded-2xl p-6" style={{ background: 'var(--card)', border: '1px solid var(--warm)' }}>
+                    <p className="text-xs font-medium mb-1" style={{ color: 'var(--muted)' }}>YOUR INVITE CODE</p>
+                    <p className="font-mono text-2xl font-bold" style={{ color: 'var(--rose)' }}>
+                        {user?.invite_code}
+                    </p>
+                    <p className="text-xs mt-2" style={{ color: 'var(--muted)' }}>
+                        Share this with your partner so they can connect with you
+                    </p>
+                </div>
+
+                {/* Partnership Card */}
+                <PartnershipCard />
+
+                {/* Feature Grid */}
+                {isConnected && (
+                    <div className="grid grid-cols-2 gap-4">
+                        {[
+                            { emoji: '📅', label: 'Events', desc: 'Plan your dates' },
+                            { emoji: '✅', label: 'Checklists', desc: 'Stay organized' },
+                            { emoji: '💰', label: 'Savings', desc: 'Reach goals together' },
+                            { emoji: '🔔', label: 'Reminders', desc: 'Never forget' },
+                        ].map((item) => (
+                            <div
+                                key={item.label}
+                                className="rounded-2xl p-5 cursor-pointer transition-all hover:shadow-md"
+                                style={{ background: 'var(--card)', border: '1px solid var(--warm)' }}
+                            >
+                                <span className="text-2xl">{item.emoji}</span>
+                                <p className="font-medium text-sm mt-3" style={{ color: 'var(--ink)' }}>
+                                    {item.label}
+                                </p>
+                                <p className="text-xs mt-1" style={{ color: 'var(--muted)' }}>
+                                    {item.desc}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </AppLayout>
     )
 }
