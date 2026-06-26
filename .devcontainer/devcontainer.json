@@ -1,0 +1,22 @@
+{
+    "name": "Tara Web",
+    "image": "mcr.microsoft.com/devcontainers/node:20",
+    "postCreateCommand": "npm install",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "bradlc.vscode-tailwindcss",
+                "dsznajder.es7-react-js-snippets"
+            ]
+        }
+    },
+    "forwardPorts": [5173],
+    "portsAttributes": {
+        "5173": {
+            "label": "Vite Dev Server",
+            "onAutoForward": "notify"
+        }
+    }
+}
